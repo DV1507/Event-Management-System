@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import CreateEventForm from "./components/createEventForm";
 const EventComponent = () => {
   return (
     <div>
@@ -19,6 +20,8 @@ const EventComponent = () => {
           <SelectItem value="system">System</SelectItem>
         </SelectContent>
       </Select>
+      <CreateEventForm />
+      <div>table</div>
     </div>
   );
 };
