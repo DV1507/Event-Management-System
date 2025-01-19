@@ -38,9 +38,9 @@ const CreateEventForm = () => {
     resolver: zodResolver(addEventSchema),
     defaultValues: {
       description: "",
-      end: addDays(new Date(), 1),
+      endDateTime: addDays(new Date(), 1),
       name: "",
-      start: new Date(),
+      startDateTime: new Date(),
     },
     reValidateMode: "onChange",
   });
@@ -51,28 +51,28 @@ const CreateEventForm = () => {
   const MMArray = Array.from({ length: 60 }).map((_, i) => i);
   const combineDateAndTime = (payload: {
     time: number;
-    label: "start" | "end";
+    label: "startDateTime" | "endDateTime";
     timeVariable: "HH" | "MM";
   }) => {
     const { label, time, timeVariable } = payload;
-    if (label === "start") {
-      const resultDate = new Date(form.watch("start"));
+    if (label === "startDateTime") {
+      const resultDate = new Date(form.watch("startDateTime"));
       if (timeVariable === "HH") {
         resultDate.setHours(Number(time));
-        form.setValue("start", resultDate);
+        form.setValue("startDateTime", resultDate);
       } else {
         resultDate.setMinutes(Number(time));
-        form.setValue("start", resultDate);
+        form.setValue("startDateTime", resultDate);
       }
     }
-    if (label === "end") {
-      const resultDate = new Date(form.watch("end"));
+    if (label === "endDateTime") {
+      const resultDate = new Date(form.watch("endDateTime"));
       if (timeVariable === "HH") {
         resultDate.setHours(Number(time));
-        form.setValue("end", resultDate);
+        form.setValue("endDateTime", resultDate);
       } else {
         resultDate.setMinutes(Number(time));
-        form.setValue("end", resultDate);
+        form.setValue("endDateTime", resultDate);
       }
     }
   };
@@ -142,7 +142,7 @@ const CreateEventForm = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="start"
+                  name="startDateTime"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Start date</FormLabel>
@@ -195,12 +195,14 @@ const CreateEventForm = () => {
                                       onClick={() =>
                                         combineDateAndTime({
                                           time: tag,
-                                          label: "start",
+                                          label: "startDateTime",
                                           timeVariable: "HH",
                                         })
                                       }
                                       variant={
-                                        form.watch("start")?.getHours() === tag
+                                        form
+                                          .watch("startDateTime")
+                                          ?.getHours() === tag
                                           ? "default"
                                           : "outline"
                                       }
@@ -227,13 +229,14 @@ const CreateEventForm = () => {
                                       onClick={() =>
                                         combineDateAndTime({
                                           time: tag,
-                                          label: "start",
+                                          label: "startDateTime",
                                           timeVariable: "MM",
                                         })
                                       }
                                       variant={
-                                        form.watch("start")?.getMinutes() ===
-                                        tag
+                                        form
+                                          .watch("startDateTime")
+                                          ?.getMinutes() === tag
                                           ? "default"
                                           : "outline"
                                       }
@@ -258,7 +261,7 @@ const CreateEventForm = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="end"
+                  name="endDateTime"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>End date</FormLabel>
@@ -295,7 +298,8 @@ const CreateEventForm = () => {
                                 )
                               }
                               disabled={(date) =>
-                                date.getDate() <= form.watch("start").getDate()
+                                date.getDate() <=
+                                form.watch("startDateTime").getDate()
                               }
                               initialFocus
                             />
@@ -312,12 +316,13 @@ const CreateEventForm = () => {
                                     onClick={() =>
                                       combineDateAndTime({
                                         time: tag,
-                                        label: "end",
+                                        label: "endDateTime",
                                         timeVariable: "HH",
                                       })
                                     }
                                     variant={
-                                      form.watch("end")?.getHours() === tag
+                                      form.watch("endDateTime")?.getHours() ===
+                                      tag
                                         ? "default"
                                         : "outline"
                                     }
@@ -344,12 +349,14 @@ const CreateEventForm = () => {
                                       onClick={() =>
                                         combineDateAndTime({
                                           time: tag,
-                                          label: "end",
+                                          label: "endDateTime",
                                           timeVariable: "MM",
                                         })
                                       }
                                       variant={
-                                        form.watch("end")?.getMinutes() === tag
+                                        form
+                                          .watch("endDateTime")
+                                          ?.getMinutes() === tag
                                           ? "default"
                                           : "outline"
                                       }

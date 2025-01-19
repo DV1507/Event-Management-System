@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const addEventSchema = z
+export const createEventSchema = z
   .object({
     name: z.string().min(1, {
       message: "Event name is required.",
@@ -8,16 +8,24 @@ const addEventSchema = z
     description: z.string().min(10, {
       message: "Description must be at least 10 characters.",
     }),
-    startDateTime: z.date({
+    start: z.date({
       required_error: "A date of birth is required.",
     }),
-    endDateTime: z.date({
+    end: z.date({
       required_error: "A date of birth is required.",
     }),
   })
-  .refine((data) => new Date(data.startDateTime) < new Date(data.endDateTime), {
+  .refine((data) => new Date(data.start) < new Date(data.end), {
     message: "Start time must be earlier than end time.",
     path: ["end"], // Point the error to the 'end' field
   });
 
-export default addEventSchema;
+export const updateEventSchema = createEventSchema;
+
+export const deleteEventSchema = z.object({
+  id: z.number().nonnegative().int("Event ID must be a number"),
+});
+
+export const getEventsSchema = z.object({
+  id: z.number().nonnegative().int("Event ID must be a number"),
+});

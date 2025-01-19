@@ -1,6 +1,7 @@
 import AsyncSelect from "react-select/async";
 import CreateEventForm from "./components/createEvent/createEventForm";
 import EventCards from "./components/eventCards";
+
 const EventComponent = () => {
   interface ColourOption {
     readonly value: string;
