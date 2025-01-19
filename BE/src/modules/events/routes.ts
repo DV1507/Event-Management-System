@@ -10,6 +10,7 @@ import {
   createEvent,
   deleteEvents,
   getAllEvents,
+  seedCategories,
   updateEvents,
 } from "./controller";
 
@@ -37,4 +38,7 @@ router.delete(
   validationMiddleware(deleteEventSchema, "params"),
   deleteEvents
 );
+
+router.post(`${basePath}/seed-category`, seedCategories);
+
 export const productRouter = router;

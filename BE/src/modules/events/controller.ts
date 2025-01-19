@@ -139,3 +139,43 @@ export const deleteEvents = async (req: Request, res: Response) => {
     true
   );
 };
+
+export const seedCategories = async (req: Request, res: Response) => {
+  const eventManagementCategories = [
+    "Corporate Events",
+    "Social Events",
+    "Cultural Events",
+    "Educational Events",
+    "Sports Events",
+    "Entertainment Events",
+    "Charity and Fundraising Events",
+    "Exhibitions and Trade Shows",
+    "Political Events",
+    "Virtual Events",
+  ];
+
+  const payload = eventManagementCategories?.map((category) => ({
+    name: category,
+  }));
+
+  const categories = await prismaClient?.category.createMany({
+    data: payload,
+  });
+
+  if (categories.count <= 0) {
+    return generalResponse(
+      res,
+      400,
+      { success: false },
+      "Could not seed categories",
+      true
+    );
+  }
+  return generalResponse(
+    res,
+    200,
+    { success: true, categories },
+    "seed categories successfully",
+    true
+  );
+};
