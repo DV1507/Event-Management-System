@@ -1,27 +1,63 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import CreateEventForm from "./components/createEventForm";
+import AsyncSelect from "react-select/async";
+import CreateEventForm from "./components/createEvent/createEventForm";
+import EventCards from "./components/eventCards";
 const EventComponent = () => {
+  interface ColourOption {
+    readonly value: string;
+    readonly label: string;
+    readonly color: string;
+    readonly isFixed?: boolean;
+    readonly isDisabled?: boolean;
+  }
+
+  const colourOptions: readonly ColourOption[] = [
+    { value: "ocean", label: "Ocean", color: "#00B8D9", isFixed: true },
+    { value: "blue", label: "Blue", color: "#0052CC", isDisabled: true },
+    { value: "purple", label: "Purple", color: "#5243AA" },
+    { value: "red", label: "Red", color: "#FF5630", isFixed: true },
+    { value: "orange", label: "Orange", color: "#FF8B00" },
+    { value: "yellow", label: "Yellow", color: "#FFC400" },
+    { value: "green", label: "Green", color: "#36B37E" },
+    { value: "forest", label: "Forest", color: "#00875A" },
+    { value: "slate", label: "Slate", color: "#253858" },
+    { value: "silver", label: "Silver", color: "#666666" },
+  ];
+  const filterColors = (inputValue: string) => {
+    return colourOptions.filter((i) =>
+      i.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  };
+
+  const promiseOptions = (inputValue: string) =>
+    new Promise<ColourOption[]>((resolve) => {
+      setTimeout(() => {
+        resolve(filterColors(inputValue));
+      }, 1000);
+    });
+  const customStyles = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    control: (base: any) => ({
+      ...base,
+      borderRadius: "30px",
+      height: 40,
+      minHeight: 35,
+    }),
+  };
   return (
-    <div>
-      this is event page
-      <Select>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Theme" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="light">Light</SelectItem>
-          <SelectItem value="dark">Dark</SelectItem>
-          <SelectItem value="system">System</SelectItem>
-        </SelectContent>
-      </Select>
-      <CreateEventForm />
-      <div>table</div>
+    <div className="flex  flex-col m-5 h-[calc(100dvh_-_150px)] overflow-auto ">
+      <div className="flex items-center gap-5 ">
+        <AsyncSelect
+          isMulti
+          styles={customStyles}
+          cacheOptions
+          placeholder="Filter event by categories"
+          className="flex-1 "
+          defaultOptions
+          loadOptions={promiseOptions}
+        />
+        <CreateEventForm />
+      </div>
+      <EventCards />
     </div>
   );
 };
