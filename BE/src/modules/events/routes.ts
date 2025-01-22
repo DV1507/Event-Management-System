@@ -10,7 +10,9 @@ import {
   createEvent,
   deleteEvents,
   getAllEvents,
+  getCategories,
   seedCategories,
+  seedEvents,
   updateEvents,
 } from "./controller";
 
@@ -18,17 +20,13 @@ const router = Router();
 const basePath = "/events";
 router.post(
   `${basePath}`,
-  validationMiddleware(getEventsSchema, "body"),
+  validationMiddleware(createEventSchema, "body"),
   createEvent
 );
-router.post(
-  `${basePath}`,
-  validationMiddleware(createEventSchema, "body"),
-  getAllEvents
-);
+router.post(`${basePath}/get-all`, getAllEvents);
 
 router.patch(
-  `${basePath}/:id`,
+  `${basePath}/update/:id`,
   validationMiddleware(updateEventSchema, "body"),
   updateEvents
 );
@@ -40,5 +38,9 @@ router.delete(
 );
 
 router.post(`${basePath}/seed-category`, seedCategories);
+
+router.get(`${basePath}/categories`, getCategories);
+
+router.post(`${basePath}/seed-events`, seedEvents);
 
 export const productRouter = router;

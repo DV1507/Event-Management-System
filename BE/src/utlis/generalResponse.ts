@@ -4,6 +4,7 @@ interface ApiResponse<T> {
   data?: Object | null;
   message: string;
   toast: boolean;
+  success: boolean;
 }
 
 const generalResponse = <T>(
@@ -11,12 +12,14 @@ const generalResponse = <T>(
   statusCode: number,
   data: Object | null,
   message: string,
-  toast: boolean = false
+  toast: boolean = false,
+  success: boolean = true
 ): void => {
   const response: ApiResponse<T> = {
     data,
     message,
     toast,
+    success,
   };
 
   res.status(statusCode).json(response);

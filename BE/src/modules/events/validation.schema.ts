@@ -8,14 +8,15 @@ export const createEventSchema = z
     description: z.string().min(10, {
       message: "Description must be at least 10 characters.",
     }),
-    start: z.date({
+    startDateTime: z.string({
       required_error: "A date of birth is required.",
     }),
-    end: z.date({
+    endDateTime: z.string({
       required_error: "A date of birth is required.",
     }),
+    categories: z.array(z.string()).nonempty("Therapy area is required"),
   })
-  .refine((data) => new Date(data.start) < new Date(data.end), {
+  .refine((data) => new Date(data.startDateTime) < new Date(data.endDateTime), {
     message: "Start time must be earlier than end time.",
     path: ["end"], // Point the error to the 'end' field
   });

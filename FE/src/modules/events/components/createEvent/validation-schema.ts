@@ -14,6 +14,14 @@ const addEventSchema = z
     endDateTime: z.date({
       required_error: "A date of birth is required.",
     }),
+    categories: z
+      .array(
+        z.object({
+          value: z.string(),
+          label: z.string(),
+        })
+      )
+      .nonempty("Therapy area is required"),
   })
   .refine((data) => new Date(data.startDateTime) < new Date(data.endDateTime), {
     message: "Start time must be earlier than end time.",

@@ -14,7 +14,7 @@ CREATE TABLE "Event" (
 
 -- CreateTable
 CREATE TABLE "Category" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "deletedAt" TIMESTAMPTZ,
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +26,7 @@ CREATE TABLE "Category" (
 -- CreateTable
 CREATE TABLE "CategoriesOnEvents" (
     "eventId" TEXT NOT NULL,
-    "categoryId" INTEGER NOT NULL,
+    "categoryId" TEXT NOT NULL,
     "assignedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "CategoriesOnEvents_pkey" PRIMARY KEY ("eventId","categoryId")

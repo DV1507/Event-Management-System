@@ -3,7 +3,6 @@ import { lazy, Suspense } from "react";
 import MainLayout from "./components/common/mainLayout";
 
 const EventPage = lazy(() => import("./modules/events"));
-const EventDetailPage = lazy(() => import("./modules/events/EventDetailPage"));
 const NotFound = lazy(() => import("./components/common/notFound"));
 
 const AppRoutes = () => {
@@ -13,7 +12,6 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<EventPage />} />
-            <Route path="/event/:id" element={<EventDetailPage />} />
           </Route>
           {/* Catch-all Route */}
           <Route path="*" element={<NotFound />} />

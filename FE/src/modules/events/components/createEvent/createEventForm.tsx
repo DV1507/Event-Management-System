@@ -4,7 +4,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import addEventSchema from "./validation-schema";
@@ -32,8 +31,84 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import {
+  combineDateAndTime,
+  formatSelectedDateWithTime,
+  HHArray,
+  MMArray,
+} from "./helper";
+import { useGet } from "@/hooks/useFetch";
+import { EventCategoryType } from "../../types";
+import { useAddEventPostApi, useUpdateEventApi } from "../../hooks/useEvent";
+import Select from "react-select";
 
-const CreateEventForm = () => {
+interface CreateEventFormProps {
+  event: EventCategoryType | null;
+  setEvent: React.Dispatch<React.SetStateAction<EventCategoryType | null>>;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isModalOpen: boolean;
+}
+const CreateEventForm = ({
+  event,
+  setEvent,
+  setIsModalOpen,
+  isModalOpen,
+}: CreateEventFormProps) => {
+  // =============================== API HOOKS ==========================================
+  const {
+    fetchData: getCategories,
+    loading: isCategoryLoading,
+    data,
+  } = useGet<{ data: { id: string; name: string }[] }>("/events/categories");
+
+  const { addEventApi } = useAddEventPostApi();
+  const { updateEventApi } = useUpdateEventApi(event?.id);
+
+  // =============================== HOOKS ==========================================
+
+  const [category, setCategories] = useState<
+    {
+      label: string;
+      value: string;
+    }[]
+  >([]);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  // Populate form with event data if available
+  useEffect(() => {
+    if (event) {
+      form.reset({
+        description: event.description,
+        endDateTime: new Date(event.endDateTime),
+        startDateTime: new Date(event.startDateTime),
+        name: event.name,
+        categories: event.categories?.map(({ category }) => ({
+          label: category.name,
+          value: category.id,
+        })),
+      });
+    }
+  }, [event]);
+
+  // Update category state when data is available
+  useEffect(() => {
+    if (!data) return;
+    const { data: response } = data;
+    if (response?.length) {
+      const categories = response.map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
+      setCategories(categories);
+    }
+  }, [data]);
+
+  // =============================== FORM SETUP ==========================================
   const form = useForm<z.infer<typeof addEventSchema>>({
     resolver: zodResolver(addEventSchema),
     defaultValues: {
@@ -44,56 +119,37 @@ const CreateEventForm = () => {
     },
     reValidateMode: "onChange",
   });
-  const onSubmit = (data: z.infer<typeof addEventSchema>) => {
-    console.log(data);
-  };
-  const HHArray = Array.from({ length: 24 }).map((_, i) => i);
-  const MMArray = Array.from({ length: 60 }).map((_, i) => i);
-  const combineDateAndTime = (payload: {
-    time: number;
-    label: "startDateTime" | "endDateTime";
-    timeVariable: "HH" | "MM";
-  }) => {
-    const { label, time, timeVariable } = payload;
-    if (label === "startDateTime") {
-      const resultDate = new Date(form.watch("startDateTime"));
-      if (timeVariable === "HH") {
-        resultDate.setHours(Number(time));
-        form.setValue("startDateTime", resultDate);
-      } else {
-        resultDate.setMinutes(Number(time));
-        form.setValue("startDateTime", resultDate);
-      }
-    }
-    if (label === "endDateTime") {
-      const resultDate = new Date(form.watch("endDateTime"));
-      if (timeVariable === "HH") {
-        resultDate.setHours(Number(time));
-        form.setValue("endDateTime", resultDate);
-      } else {
-        resultDate.setMinutes(Number(time));
-        form.setValue("endDateTime", resultDate);
-      }
+
+  // =============================== FORM SUBMISSION ==========================================
+  const onSubmit = async (formData: z.infer<typeof addEventSchema>) => {
+    const { categories, description, endDateTime, name, startDateTime } =
+      formData;
+    const createEventPayload = {
+      id: event?.id,
+      description,
+      endDateTime: new Date(endDateTime),
+      name,
+      startDateTime: new Date(startDateTime),
+      categories: categories?.map(({ value }) => value),
+    };
+
+    if (event) {
+      await updateEventApi(createEventPayload);
+    } else {
+      await addEventApi(createEventPayload);
     }
   };
 
-  const formatSelectedDateWithTime = (
-    selectedDate: Date = new Date(),
-    currentSelectedDate: Date
-  ) => {
-    const hours = currentSelectedDate.getHours();
-    const minutes = currentSelectedDate.getMinutes();
-    selectedDate?.setHours(hours, minutes, 0, 0);
-    return selectedDate;
+  // =============================== HELPER FUNCTIONS ==========================================
+  // Handle modal toggle and reset form
+  const handleToggle = () => {
+    setEvent(null);
+    setIsModalOpen((prev) => !prev);
+    form.reset();
   };
 
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Button variant={"default"} className="text-neutral-800">
-          Create Event
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isModalOpen} onOpenChange={handleToggle}>
       <DialogContent className="max-h-[calc(100dvh_-_200px)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create an event</DialogTitle>
@@ -108,7 +164,9 @@ const CreateEventForm = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Event name</FormLabel>
+                      <FormLabel>
+                        Event name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Please enter event name"
@@ -122,12 +180,15 @@ const CreateEventForm = () => {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>
+                        Description <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Brief about the event"
@@ -145,7 +206,9 @@ const CreateEventForm = () => {
                   name="startDateTime"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Start date</FormLabel>
+                      <FormLabel>
+                        Start date <span className="text-red-500">*</span>
+                      </FormLabel>
                       <Popover modal>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -197,6 +260,7 @@ const CreateEventForm = () => {
                                           time: tag,
                                           label: "startDateTime",
                                           timeVariable: "HH",
+                                          form,
                                         })
                                       }
                                       variant={
@@ -231,6 +295,7 @@ const CreateEventForm = () => {
                                           time: tag,
                                           label: "startDateTime",
                                           timeVariable: "MM",
+                                          form,
                                         })
                                       }
                                       variant={
@@ -264,7 +329,9 @@ const CreateEventForm = () => {
                   name="endDateTime"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>End date</FormLabel>
+                      <FormLabel>
+                        End date <span className="text-red-500">*</span>
+                      </FormLabel>
                       <Popover modal>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -318,6 +385,7 @@ const CreateEventForm = () => {
                                         time: tag,
                                         label: "endDateTime",
                                         timeVariable: "HH",
+                                        form,
                                       })
                                     }
                                     variant={
@@ -351,6 +419,7 @@ const CreateEventForm = () => {
                                           time: tag,
                                           label: "endDateTime",
                                           timeVariable: "MM",
+                                          form,
                                         })
                                       }
                                       variant={
@@ -379,6 +448,38 @@ const CreateEventForm = () => {
                     </FormItem>
                   )}
                 />
+                <Controller
+                  name="categories"
+                  control={form.control}
+                  render={({ field: { onChange, value } }) => (
+                    <div className=" w-full">
+                      <FormLabel>
+                        Event Category<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Select
+                        isClearable
+                        options={category}
+                        onChange={(selectedOption) => {
+                          onChange(selectedOption || "");
+                        }}
+                        placeholder="Assign Category"
+                        isMulti
+                        isLoading={isCategoryLoading}
+                        onMenuOpen={() => getCategories()}
+                        value={value}
+                        className="react-select"
+                        classNamePrefix="select"
+                      />
+
+                      {form.formState.errors.categories && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {form.formState.errors.categories.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+
                 <Button type="submit" className="flex w-full items-center">
                   Submit
                 </Button>
