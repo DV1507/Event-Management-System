@@ -142,13 +142,16 @@ export const updateEvents = async (req: Request, res: Response) => {
   if (!id) {
     return generalResponse(res, 400, {}, "Event id is required", true);
   }
-  // categories: {
-  //       create: categories?.map((categoryId: string) => ({
-  //         category: {
-  //           connect: { id: categoryId },
-  //         },
-  //       })),
-  //     },
+  const eventExist = await prismaClient.event.count({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (eventExist === 0) {
+    return generalResponse(res, 400, {}, "Event does not exist", true);
+  }
   const event = await prismaClient?.event?.update({
     where: { id },
     data: {
@@ -192,9 +195,18 @@ export const deleteEvents = async (req: Request, res: Response) => {
     if (!id) {
       return generalResponse(res, 400, {}, "Event id is required", true);
     }
+    const eventExist = await prismaClient.event.count({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
 
+    if (eventExist === 0) {
+      return generalResponse(res, 400, {}, "Event does not exist", true);
+    }
     const event = await prismaClient?.event?.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: {
         deletedAt: new Date(),
       },
@@ -221,7 +233,7 @@ export const deleteEvents = async (req: Request, res: Response) => {
       res,
       400,
       { success: false, error },
-      "Could not seed categories",
+      "Could not delete event",
       true
     );
   }

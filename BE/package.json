@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "prisma generate && prisma migrate dev && tsc",
-    "start": "tsc &&node dist/index.js"
+    "start": "npm run build && node dist/index.js"
   },
   "author": "",
   "license": "ISC",
