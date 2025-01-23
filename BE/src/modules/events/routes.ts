@@ -3,7 +3,6 @@ import validationMiddleware from "../middlewares/validation.middleware";
 import {
   createEventSchema,
   deleteEventSchema,
-  getEventsSchema,
   updateEventSchema,
 } from "./validation.schema";
 import {
@@ -43,4 +42,4 @@ router.get(`${basePath}/categories`, getCategories);
 
 router.post(`${basePath}/seed-events`, seedEvents);
 
-export const productRouter = router;
+export const eventRouter = router;

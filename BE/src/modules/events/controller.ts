@@ -71,6 +71,7 @@ export const getAllEvents = async (req: Request, res: Response) => {
 
     const events = await prismaClient.event.findMany({
       where: {
+        deletedAt: null,
         AND: categories.map((categoryId: string) => ({
           categories: {
             some: {
@@ -94,6 +95,7 @@ export const getAllEvents = async (req: Request, res: Response) => {
 
     const totalEvents = await prismaClient.event.count({
       where: {
+        deletedAt: null,
         AND: categories.map((categoryId: string) => ({
           categories: {
             some: {
@@ -185,7 +187,7 @@ export const updateEvents = async (req: Request, res: Response) => {
 
 export const deleteEvents = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!id) {
       return generalResponse(res, 400, {}, "Event id is required", true);

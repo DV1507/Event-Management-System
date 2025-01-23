@@ -2,10 +2,13 @@ import { z } from "zod";
 
 const addEventSchema = z
   .object({
-    name: z.string().min(1, {
-      message: "Event name is required.",
-    }),
-    description: z.string().min(10, {
+    name: z
+      .string()
+      .min(1, {
+        message: "Event name is required.",
+      })
+      .max(30),
+    description: z.string().min(5, {
       message: "Description must be at least 10 characters.",
     }),
     startDateTime: z.date({
@@ -21,7 +24,7 @@ const addEventSchema = z
           label: z.string(),
         })
       )
-      .nonempty("Therapy area is required"),
+      .nonempty("categories is required"),
   })
   .refine((data) => new Date(data.startDateTime) < new Date(data.endDateTime), {
     message: "Start time must be earlier than end time.",

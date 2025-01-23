@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { usePatch, usePost } from "@/hooks/useFetch";
+import { useDelete, usePatch, usePost } from "@/hooks/useFetch";
 
 const basePath = "/events";
 export const useGetProductPostApi = () => {
@@ -42,4 +42,13 @@ export const useUpdateEventApi = (id?: string) => {
     return res;
   };
   return { loading, updateEventApi, error };
+};
+
+export const useDeleteEventAPi = (id?: string) => {
+  const { fetchData, error, loading } = useDelete(`${basePath}/${id}`);
+  const deleteEventApi = async () => {
+    const res = await fetchData();
+    return res;
+  };
+  return { loading, deleteEventApi, error };
 };

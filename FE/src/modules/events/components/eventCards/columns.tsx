@@ -3,20 +3,27 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Category, Event } from "../../types";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Edit2, EyeIcon } from "lucide-react";
+import { Edit2, EyeIcon, Trash2 } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want. name, number, monthlySalary, perDaySalary, managerId
 export const getEventColumns = ({
   setEvent,
+  setEventToView,
+  setEventToDelete,
 }: {
   setEvent: Dispatch<SetStateAction<Event | null>>;
+  setEventToView: Dispatch<SetStateAction<Event | null>>;
+  setEventToDelete: Dispatch<SetStateAction<string | undefined>>;
 }): ColumnDef<Event>[] => [
   {
     header: "Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <span className="text-xs md:text-lg font-bold text-slate-700 capitalize">
+      <span
+        onClick={() => setEventToView(row.original)}
+        className="underline hover:cursor-pointer text-xs md:text-lg font-bold text-slate-700 capitalize"
+      >
         {row.getValue("name")}
       </span>
     ),
@@ -61,7 +68,7 @@ export const getEventColumns = ({
           {rowData?.slice(0, 2)?.map(({ category }) => (
             <div> {(category as Category).name}</div>
           ))}
-          {rowData?.length > 2 && <span>...</span>}
+          {rowData?.length > 2 && <span>+ {rowData?.length - 2}</span>}
         </span>
       );
     },
@@ -75,13 +82,32 @@ export const getEventColumns = ({
           <Button
             onClick={() => {
               setEvent({ ...row?.original });
+              setEventToView(null);
+              setEventToDelete(undefined);
             }}
-            className="w-5 md:w-10"
+            className="w-5 "
           >
             <Edit2 />
           </Button>
-          <Button className="w-5 md:w-10">
+          <Button
+            className="w-5 "
+            onClick={() => {
+              setEvent(null);
+              setEventToDelete(undefined);
+              setEventToView({ ...row?.original });
+            }}
+          >
             <EyeIcon />
+          </Button>
+          <Button
+            className="w-5 "
+            onClick={() => {
+              setEvent(null);
+              setEventToView(null);
+              setEventToDelete(row?.original?.id);
+            }}
+          >
+            <Trash2 />
           </Button>
         </div>
       );

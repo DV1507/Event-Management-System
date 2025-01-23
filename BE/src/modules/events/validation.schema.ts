@@ -2,10 +2,14 @@ import { z } from "zod";
 
 export const createEventSchema = z
   .object({
-    name: z.string().min(1, {
-      message: "Event name is required.",
-    }),
-    description: z.string().min(10, {
+    name: z
+      .string()
+      .min(1, {
+        message: "Event name is required.",
+      })
+      .max(30),
+
+    description: z.string().min(5, {
       message: "Description must be at least 10 characters.",
     }),
     startDateTime: z.string({
@@ -14,7 +18,7 @@ export const createEventSchema = z
     endDateTime: z.string({
       required_error: "A date of birth is required.",
     }),
-    categories: z.array(z.string()).nonempty("Therapy area is required"),
+    categories: z.array(z.string()).nonempty("categories is required"),
   })
   .refine((data) => new Date(data.startDateTime) < new Date(data.endDateTime), {
     message: "Start time must be earlier than end time.",
@@ -24,7 +28,7 @@ export const createEventSchema = z
 export const updateEventSchema = createEventSchema;
 
 export const deleteEventSchema = z.object({
-  id: z.number().nonnegative().int("Event ID must be a number"),
+  id: z.string(),
 });
 
 export const getEventsSchema = z.object({

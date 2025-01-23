@@ -76,7 +76,7 @@ export function CommonTable({
   console.log(data?.data);
 
   return (
-    <div className="w-full h-full overflow-auto">
+    <div className="w-full h-full ">
       <div className="flex rounded-md bg-[#ffffff]  min-h-[calc(100vh-370px)] xl:h-[calc(100vh-370px)] p-2 overflow-x-auto">
         <Table className="">
           <TableHeader>
@@ -147,7 +147,7 @@ export function CommonTable({
       </div>
       {!isLoading && data?.pagination?.totalPages > 1 && (
         <Pagination
-          className="bg-white border-none w-fit mt-14"
+          className="bg-white border-none w-full mt-14"
           page={page}
           totalPages={data?.pagination?.totalPages}
           setPage={setPage}

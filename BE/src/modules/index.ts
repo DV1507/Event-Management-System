@@ -1,3 +1,3 @@
-import { productRouter } from "./events/routes";
+import { eventRouter } from "./events/routes";
 
-export const routes = [productRouter];
+export const routes = [eventRouter];

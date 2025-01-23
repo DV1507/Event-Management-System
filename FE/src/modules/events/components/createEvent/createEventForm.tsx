@@ -134,9 +134,17 @@ const CreateEventForm = ({
     };
 
     if (event) {
-      await updateEventApi(createEventPayload);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await updateEventApi(createEventPayload);
+      if (res?.data?.success) {
+        setIsModalOpen(false);
+      }
     } else {
-      await addEventApi(createEventPayload);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await addEventApi(createEventPayload);
+      if (res?.data?.success) {
+        setIsModalOpen(false);
+      }
     }
   };
 
